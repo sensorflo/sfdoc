@@ -1,0 +1,88 @@
+## The used syntax metalanguage is yasmala (https://github.com/sensorflo/yasmala)
+
+## root element is implicit (from sfdoc point of view, there are multiple root elements)
+doc = node*;
+
+node = element | COMMENT | processing_instruction;
+
+element =
+  `< TAGID foo content `>   | ## general syntax
+  `+ TAGID foo              | ## unclosed element. Just syntax sugar because < TAGID foo without closing > looks irritating.
+                              ## *to-do* isnt that overkill to save one char (>)?
+                              ##         at least if the most often used tags have their own tokens
+  `@ \w+#refid              | ## <@...>
+  UNCLOSED_ELEMENT_START foo| ## unclosed element
+  VERBATIM_ELEMENT          |
+  EMPTY_LINES               ; ## <block_separator>
+
+## note lexxer must know attribute list context, i.e. `] is special only
+## there. so are = " ' etc of attributes
+foo =
+  `[ attribs `]  |
+  \s             |
+  %empty         ; ## - if tagid ends in punctation. note VERB_ELEMENT / UNCLOSED_ELEMENT_START
+                   ## - if element is empty or unclosed
+
+content = (LITERAL_CHAR | CHAR_REF | VERB_CONTENT | content)*;
+
+processing_instruction = `<? TAGID foo pi_content `> ;
+
+TAGID = (\S-\[)* ;
+
+## - single line comment? It's my language, I hardly ever use comments, so a short
+##   single line comment syntax is not important to me
+## - note that no char is `wasted', since <<... is an anonymous element.
+COMMENT =
+  `<< .*? `>> ;
+
+UNCLOSED_ELEMENT_START =
+  ## inline
+  `*     | ## <em_toggle
+  `**    | ## <strong_toggle
+  \~\S+  | ## <subscript  *to-do* conflicts with ~ TAGID foo
+  \^\S+  | ## <superscript
+
+  ## blocks
+  \=+    | ## <h[1-9]
+  \#+    | ## <uli_eac[1-9]  unordered list item as eager auto close
+  \#+\.  | ## <oli_eac[1-9]  ordered list item as eager auto close
+  \#+\|  | ## <dt[1-9]   defines term, <generic_element> is then <dd_eac
+
+  ## misc
+  `|     ; ## generic_element
+
+
+VERBATIM_ELEMENT =
+  `` VERBATIM_BLOCKINLINE_CONTENT ``    | ## <code<verbatim ...>>
+  `$ START tagid foo VERBATIM_BLOCKINLINE_CONTENT END; ## <verbatim ...>
+
+## *to-do* how about newlines ??
+## *to-do* how about leading spaces of next line if paragraph is indended??
+## - maybe 'verbatim except blanks', i.e. blanks still behave normally.
+## - if user really wants verbatim inclusive spaces, there's another
+##   block inline element, say <strongverb ...>. But then turn all spaces to
+##   nonbreaking space? If so its still not really really verbatim. Solve with
+##   attributes? If so, then there's only one verbatim construct, and an attribute
+##   which can be set to one of multiple levels.
+## - make it 'verbatim except blanks', and when user wants
+##   * multiple spaces, use non-breaking-spaces
+##   * newline: close element, <br>, open new element
+VERBATIM_BLOCKINLINE_CONTENT = ... ;
+
+START = \p | \S*? `; ;
+
+END = ## if start is
+  ## [{<([]   : the respective closing
+  ## otherwise: same as start
+  ;
+
+LITERAL_CHAR = #* todo *#;
+
+## *to-do* what does it mean to escape blanks?
+CHAR_REF =
+  \\ \p | ## meant to escape meta chars, but also works for literal (punctuation) chars
+  "\x" \x{2}   | ## As in many programming languages
+  "\u" \x{4}   |
+  "\U" \x{8}   |
+  `_ ('[\S ]-\; )* `; | ## character entity reference. The core knows none.
+  `_ \p+ ;  ## alternate character entity reference. The core knows none.

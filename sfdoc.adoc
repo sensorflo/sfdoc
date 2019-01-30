@@ -1,0 +1,300 @@
+// The markup language of this document is AsciiDoc
+:encoding: UTF-8
+:toc:
+:toclevels: 4
+
+= SF Doc
+
+
+== Blocks / document structure
+
+
+=== Headings
+
+
+=== Paragraphs
+
+Normal paragraphs
+
+Admonition paragraphs
+
+Sidebar block
+
+=== Tables
+
+table: <table ...>. Is a sequence of cells <tc> (table cell) (short: "|").
+
+$$\+(\-+\+)+$$ and $$\+-{5,}$$ ($$\|\=+$$ AsciiDoc compability) are short for $$<table_toggle>$$
+
+Allow for $$+-----+-----+$$  horizontal row delimiters / table start / table end. As row delimiters they have no meaning and are ignored.
+
+there are table attributes or elements which are meant to add attributes to given cells, in order that the table body looks clean
+
+mind that with macros, you can have a clean table body, even if some cells contain long content (long in the source). Define the macro close to the table, and refer to it in the cell.
+
+*to-do* in the $$+---+---+$$ style, what to do with the $$|$$ at the end of the last column? Then there two pipes in a row (with the pipe on the next line starting the next row). Two pipes only sperated by space including one newline is also a valid case for the $$|======$$ style when the last cell of a row is empty.
+
+=== Lists
+
+*to-do* now that + is the meta char for empty element, a standalone + could be list element.
+
+definition list iten: <=term|definition>. "|" is thus some generic empty tag, e.g. <generic_separator>.
+
+Have some construct which is replaced by the number of a given list item
+(identified via it's id, see anchors).
+
+
+=== Pictures
+
+
+=== Listings
+
+"literal bocks" (what should that be exactly?): Remove the minimal leading space
+of all occuring lines.
+
+
+
+== Block inline
+
+
+See UNCLOSED_ELEMENT_START, VERBATIM_ELEMENT, <<math>>
+
+
+superscript, subscript: See also https://en.wikipedia.org/wiki/Subscript_and_superscript. Note that many times when superscript, subscript is used, its some small math formula, which should be in latex math $...$. *to-do* Chemical formulas: can I take over something from Latex?
+
+
+=== Links & anchors
+
+tagid = @. What text the form which only states the target id produces,
+is determined by a document attribute. That attribute is some macro, which can make use
+of variables like target content (i.e. chapter title), chapter number, etc.
+
+
+=== Sentences / Wrapping / Hyphenation / Blanks
+
+[[no_break_space]]
+NO-BREAK SPACE: E.g. for "Dr._ Who"
+
+ZERO WIDTH NO-BREAK SPACE: one way to `glue' chars together so that no line breaking occures between them
+
+ZERO WIDTH SPACE: one way to indicate line breaking opportunity
+
+EM SPACE: To implement <<english_spacing>> for some backends. *to-do* How do browser behave regarding line breaking? Do I possibly have a em space at the end / beginning of a line?
+
+[[english_spacing]]
+After the end of a sentence there is an em space.  A sentence ends with . ? ! (*to-do* does semicolon end a sentence?).  Two spaces after a period specify that the periods ends the sentence, opposed to be part of an abbreviation.  Warn if there's only one space after a period, and the thing before the period is not in the list of known abbreviations.  Editors must not remove double space spacing after period (Emacs: see sentence-end-double-space).  Note that English spacing is considered outdated by many.  *to-do*: Make it more general than . ? !.  Its language dependend, so it should be part of the english lib.  *to-do* note that apperently (american? british?) puncutation rules say that a period comes before a closing single/double quote (parenthesis also?) if the two end a sentence.
+
+
+== Characters / Verbatim / Escapes
+
+See CHAR_REF
+
+
+Unicode character names / HTML character entity references: https://en.wikipedia.org/wiki/List_of_Unicode_characters
+
+
+=== English lib
+
+_generic double / single quote_: It is defined by document attributes which glyph is used for each of start / end single / double quote.
+
+*to-do* !! really efdoc has much less problems
+
+- If the convention is that characters outside ASCII are inserted literally by help of the editor.
+
+- Only abbreviations for <q ...> are exempted, because there its not really about characters but about semantics. !!!
+
+- The editor should make char ref construct pretty, e.g. by `hiding' the meta characters of the char ref construct. So it's not a primary concern of sfdoc that ref char constructs look non-intrusive.
+
+Character references or elements concerned about characters:
+
+- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q
+
+- Depending on options / configuration:
+ - fdoc encloses quote / alt_quote elements by configured chars
+ - fdoc passes through that element. optionally configuriong the backend to which chars should be used.
+
+|=====
+|           | prime *to-do*
+| $$''$$    | double prime
+| $$'''$$   | triple prime
+
+| $$'$$     | apostrophe
+
+| $$"$$     | <quote_toggle>. <"...> looks less good in source.
+| $$_'$$    | <alt_quote_toggle>   *to-do* token \_\p can only be char reference !!!!
+
+| $$_`$$    | single quote start
+| $$_`'$$ ' | single quote end. In English (says Unicode) that's the same char as apostrophe.
+| $$_,$$    | single low quote start
+| $$_<$$    | Single left angle quote
+| $$_>$$    | Single right angle quote
+
+| $$_``$$   | double quote start
+| $$_''$$   | double quote end
+| $$_,,$$   | double low quote start
+| $$_<<$$   | Guillemets start
+| $$_>>$$   | Guillemets end
+
+| $$\'$$    | ASCII / UNICODE U+0027	QUOTATION MARK
+| $$\"$$    | ASCII / UNICODE U+0022	APOSTROPHE
+
+| $$...$$   | Ellipsis
+|           | *to-do* more dot stuff
+
+| $$-$$     | Hyphen
+| $$--$$    | En dash (range)
+| $$---$$   | Em dash
+| $$_-$$    | Minus
+| $$\-$$    | ASCII / UNICODE U+002D  HYPHEN-MINUS
+|           | *to-do* other hyphen like? Nonbeaking hyphen. Suggested hyphenation.
+
+|           | *to-do* tilde like?
+
+| $$\ $$    | *to-do what should escaped space mean? Probably as always with \ a literal space.
+|           | *to-do* other slash like?
+
+
+| $$_ $$    | non breaking space (Dr. Who) *to-do* does &nbsp; mess up HTML wrapping?
+| $$.  $$   | period followed by two spaces: <<english_spacing>>
+|=====
+
+
+
+== Document type Document
+
+=== Attributes
+
+author, date, version
+
+=== Special chapters
+
+==== Abstract
+
+==== TOC
+
+==== Appendix
+
+==== Index
+
+Index tagid = ! (inverted i, i for index):
+
+==== Biblio
+
+
+
+[[math]]
+== Math
+
+Is there really no short way to escape >? Or to write > in another way? Then
+<$...> would be convenient enough. On the other side $$$...$ is only one char
+more, and only two char more than LaTeX's $...$; It's not one of sfdoc's main
+purposes to support LaTeX math extremly conveniently.
+
+Maybe add "\greater" or "\>" as a custom TeX macro?
+
+
+== Macro
+
+<& ...>: Macro (i.e. neither processing instruction nor element). Similar to entity reference, only now with parametrs.
+
+To separate arguments: <,> or +, or |. Or maybe better: just use normal child
+elements for arguments. Then they are also named, and its what we do everywhere
+else in tree structured document.
+
+
+== Schema
+
+html auto close tags:
+- html, head, body, p, dt, dd, li, option, thead, th, tbody, tr, td, tfoot, colgroup
+- https://www.w3.org/TR/html5/syntax.html#closing-elements-that-have-implied-end-tags
+
+block elements:
+
+- h[1-9],
+
+- p
+
+- ul
+- uli
+- ol
+- oli
+- dl
+- dt ?
+- dd ?
+
+- table
+- cell
+
+- generic_element ?
+
+- <admonition paragraphs>
+
+- listings
+
+
+rules regarding block_separator (exercised by what entity?):
+
+- If a block element is preceded by a sequence of <block_separator>, the later is ignored / `removed'.
+
+- Remaining <block_separator> are turned into <p>
+
+
+auto close rules. After inserting, start again, i.e. process what was just inserted
+
+- an unclosed element is marked to be potentially empty (e.g. br, img, ...) is
+  closed where it occurs, i.e. it becomes a properly closed empty element.
+
+- when encountering list item (<(uli|oli|dt)(_eac)?[1-9]):
+
+  * with a deeper nesting than the current nesting: insert respective <(ul|ol|dl).
+
+  * with same nesting: do nothing
+
+  * with a higher nesting than the current nesting: insert necessairy many > (to close respective lists)
+
+- when at top level and new block is encountered and current block unclosed:
+  insert > to close current block
+
+- when end of block is encountered: insert necessairy many > to close all still
+  open block-inline elements (and report warnings)
+
+
+
+== Syntax
+
+see sfdoc.yas
+
+Each element id having a short form (without "<"), must also have the normal form "<" available (but not vice versa). Its really always an element id. Rational: The user must have the option to write strictly well formed documents, where all elements are explicitely closed, so he can rely on errors/warnings about unclosed elements (optionaly turned on / i.e. auto close elements turned off).
+
+*to-do* What to do with an anonymous element? "<[...]...>" ("<<...>>" is comment). syntax for macro / processing instruction? A lib can define to which element it refers, e.g. div in HTML?
+
+http://www.thepunctuationguide.com/terminal-points.html
+
+Overview:
+
+Literal chars as long as not consecutive: . ; ? ! , : / ( ) ]
+- two consecutive . ; ? ! (sentence endings) with any number of ) inbetween allowed
+
+Core meta: < > [ $ + \ _
+
+Reserved for core / default lib: none
+
+Default lib elements without following space: * ^ ~ ` (@)
+
+Default lib elements which require space, i.e. other combinations free: = # |
+
+Free for further libs: % & { }
+
+To be defined by languag env: - ' "
+
+Can be defined by libs / language env:
+Abbreviations for characters: \...; , `\p+ , `...;
+
+
+How to make rules simple?
+
+- Goal is no surprising output without having to remember tons of rules.
+
+- Errors / warnings can help preventing surprising output.
+
+- One can always directly insert Unicode characters. Editor should help to make that easy.
